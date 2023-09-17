@@ -85,7 +85,7 @@ docker run --detach --name some-postgres -p 5432:5432 --env POSTGRES_PASSWORD=po
 #### Create table
 
 ```postgresql
-CREATE TABLE product_purchase
+CREATE TABLE product_Inspect
 (
     uid                serial primary key,
     product_id         int not null,
