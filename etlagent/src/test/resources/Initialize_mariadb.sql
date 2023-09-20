@@ -1,39 +1,3 @@
-# Spring Boot Multiple Datasource with Testcontainers
-
-## Purpose
-
-Assessing the implementation details for following items.
-
-- Multiple datasource with different drivers (MariaDB and Postgres)
-- Provide data base url and password via environment variables
-- Testcontainers instead of in-memory H2
-- Native build
-
-## Database setup
-
-### MariaDB
-
-#### Create container
-
-```
-docker run --detach --name some-mariadb -p 3306:3306 --env MARIADB_USER=example-user --env MARIADB_PASSWORD=my_cool_secret --env MARIADB_ROOT_PASSWORD=my-secret-pw  mariadb:lts
-```
-
-#### Initialize user
-
-- login as example-user, logout
-- login as root
-
-```mariadb
-CREATE DATABASE mall;
-GRANT ALL ON mall.* TO 'example-user'@'%';
-```
-
-- login as example-user
-
-#### Create table
-
-```mariadb
 CREATE TABLE product
 (
     product_id         INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -41,6 +5,7 @@ CREATE TABLE product
     created_date       TIMESTAMP    NOT NULL,
     last_modified_date TIMESTAMP    NOT NULL
 );
+
 
 CREATE TABLE product_workflow_main
 (
@@ -81,27 +46,11 @@ CREATE TABLE product_workflow_adopt
     CONSTRAINT fk_product_workflow_adopt_productId
         FOREIGN KEY (product_id) REFERENCES product (product_id)
             ON DELETE CASCADE
-            ON UPDATE RESTRICT  
+            ON UPDATE RESTRICT
 );
-```
 
-### Postgres
+INSERT INTO product (product_id, product_name, created_date, last_modified_date)
+VALUES (1, 'Apple', STR_TO_DATE('2023-09-11 12:34:56', '%Y-%m-%d %T'), STR_TO_DATE('2023-09-11 12:34:56', '%Y-%m-%d %T'));
 
-#### Create container
-
-```
-docker run --detach --name some-postgres -p 5432:5432 --env POSTGRES_PASSWORD=postgres postgres:15.4-alpine
-```
-
-#### Create table
-
-```postgresql
-CREATE TABLE product_Inspect
-(
-    uid                serial primary key,
-    product_id         int not null,
-    inspect_date       timestamp,
-    create_date        timestamp,
-    last_modified_date timestamp
-);
-```
+INSERT INTO product_workflow_adopt (product_id, inspect_date, adopt, wid, create_date, last_modified_date)
+VALUES (1, STR_TO_DATE('2023-09-11 12:34:56', '%Y-%m-%d %T'), 'Y', 2, STR_TO_DATE('2023-09-11 12:34:56', '%Y-%m-%d %T'), STR_TO_DATE('2023-09-11 12:34:56', '%Y-%m-%d %T'));

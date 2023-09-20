@@ -5,6 +5,7 @@ import hle.etlagent.dao.impl.rowmapper.ProductInspectRowMapper;
 import hle.etlagent.dto.ProductInspReq;
 import hle.etlagent.model.ProductInspect;
 import hle.etlagent.util.DateTimeUtil;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -17,7 +18,7 @@ public class ProductInspRepoPostgresJdbcImpl implements ProductInspRepo {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
-    public ProductInspRepoPostgresJdbcImpl(NamedParameterJdbcTemplate jdbcTemplate) {
+    public ProductInspRepoPostgresJdbcImpl(@Qualifier("inlineNamedJdbcTemplate") NamedParameterJdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

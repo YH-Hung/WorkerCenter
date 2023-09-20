@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ProductWorkflowAdoptRepo {
-    List<ProductWorkflowAdopt> findByWindow(LocalDateTime fromDt, LocalDateTime toDt);
+    List<ProductWorkflowAdopt> findByWindow();
     void saveRaws(List<ProductInspect> inspectRaws);
     void materializeJoinAdopt(LocalDateTime fromDt, LocalDateTime toDt);
 }
