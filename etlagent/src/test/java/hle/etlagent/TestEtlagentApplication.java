@@ -11,17 +11,6 @@ import org.testcontainers.utility.DockerImageName;
 @TestConfiguration(proxyBeanMethods = false)
 public class TestEtlagentApplication {
 
-    @Bean
-    @ServiceConnection
-    MariaDBContainer<?> mariaDbContainer() {
-        return new MariaDBContainer<>(DockerImageName.parse("mariadb:latest"));
-    }
-
-    @Bean
-    @ServiceConnection
-    PostgreSQLContainer<?> postgresContainer() {
-        return new PostgreSQLContainer<>(DockerImageName.parse("postgres:latest"));
-    }
 
     public static void main(String[] args) {
         SpringApplication.from(EtlagentApplication::main).with(TestEtlagentApplication.class).run(args);

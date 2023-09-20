@@ -16,7 +16,7 @@ Assessing the implementation details for following items.
 #### Create container
 
 ```
-docker run --detach --name some-mariadb -p 3306:3306 --env MARIADB_USER=example-user --env MARIADB_PASSWORD=my_cool_secret --env MARIADB_ROOT_PASSWORD=my-secret-pw  mariadb:latest
+docker run --detach --name some-mariadb -p 3306:3306 --env MARIADB_USER=example-user --env MARIADB_PASSWORD=my_cool_secret --env MARIADB_ROOT_PASSWORD=my-secret-pw  mariadb:lts
 ```
 
 #### Initialize user
@@ -34,7 +34,7 @@ GRANT ALL ON mall.* TO 'example-user'@'%';
 #### Create table
 
 ```mariadb
-CREATE TABLE IF NOT EXISTS product
+CREATE TABLE product
 (
     product_id         INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
     product_name       VARCHAR(128)  NOT NULL,
@@ -49,28 +49,44 @@ CREATE TABLE IF NOT EXISTS product
 
 CREATE TABLE product_workflow_main
 (
-    wid                int auto_increment primary key,
-    product_id         int not null,
-    start_date         timestamp,
-    create_date        timestamp,
-    last_modified_date timestamp,
-    constraint fk_product_workflow
-        foreign key (product_id) references product (product_id)
-            on delete cascade
-            on update restrict
+    wid                INT AUTO_INCREMENT PRIMARY KEY,
+    product_id         INT NOT NULL,
+    start_date         TIMESTAMP,
+    create_date        TIMESTAMP,
+    last_modified_date TIMESTAMP,
+    CONSTRAINT fk_product_workflow
+        FOREIGN KEY (product_id) REFERENCES product (product_id)
+            ON DELETE CASCADE
+            ON UPDATE RESTRICT
 );
 
 CREATE TABLE product_workflow_attr
 (
-    wid                int not null,
-    workflow_type      varchar(20),
-    create_date        timestamp,
-    last_modified_date timestamp,
-    primary key (wid, workflow_type),
-    constraint fk_workflow_main
-        foreign key (wid) references product_workflow_main (wid)
-            on delete cascade
-            on update restrict
+    wid                INT NOT NULL,
+    workflow_type      VARCHAR(20),
+    val                CHAR(17),
+    create_date        TIMESTAMP,
+    last_modified_date TIMESTAMP,
+    PRIMARY KEY (wid, workflow_type),
+    CONSTRAINT fk_workflow_main
+        FOREIGN KEY (wid) REFERENCES product_workflow_main (wid)
+            ON DELETE CASCADE
+            ON UPDATE RESTRICT
+);
+
+CREATE TABLE product_workflow_adopt
+(
+    uid                INT AUTO_INCREMENT PRIMARY KEY,
+    product_id         INT NOT NULL,
+    inspect_date       TIMESTAMP,
+    adopt              CHAR(1),
+    wid                INT,
+    create_date        TIMESTAMP,
+    last_modified_date TIMESTAMP,
+    CONSTRAINT fk_product_workflow_adopt_productId
+        FOREIGN KEY (product_id) REFERENCES product (product_id)
+            ON DELETE CASCADE
+            ON UPDATE RESTRICT  
 );
 ```
 

@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ProductInspReq {
-    Integer productId;
-    String inspDate;
+public class ProductWorkflowAttrReq {
+    Integer wid;
+    String workflowType;
 }
