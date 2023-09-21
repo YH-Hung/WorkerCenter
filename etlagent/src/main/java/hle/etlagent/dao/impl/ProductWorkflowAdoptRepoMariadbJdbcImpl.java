@@ -23,13 +23,18 @@ public class ProductWorkflowAdoptRepoMariadbJdbcImpl implements ProductWorkflowA
     }
 
     @Override
-    public List<ProductWorkflowAdopt> findByWindow() {
+    public List<ProductWorkflowAdopt> findByWindow(LocalDateTime from, LocalDateTime to) {
         String sql = """
                 SELECT product_id, inspect_date, adopt
                 FROM product_workflow_adopt
+                WHERE inspect_date BETWEEN :fromDt AND :toDt
                 """;
 
-        return jdbcTemplate.query(sql, new ProductWorkflowAdoptRowMapper());
+        var params = new MapSqlParameterSource()
+                .addValue("fromDt", from)
+                .addValue("toDt", to);
+
+        return jdbcTemplate.query(sql, params, new ProductWorkflowAdoptRowMapper());
     }
 
     @Override
