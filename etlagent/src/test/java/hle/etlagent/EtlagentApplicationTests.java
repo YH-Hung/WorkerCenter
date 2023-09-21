@@ -1,8 +1,8 @@
 package hle.etlagent;
 
 import hle.etlagent.dao.ProductInspRepo;
+import hle.etlagent.dao.ProductRepo;
 import hle.etlagent.dao.ProductWorkflowAdoptRepo;
-import org.junit.Assert;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -11,11 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.jdbc.Sql;
 import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
+@SuppressWarnings("resource")
 @SpringBootTest
 class EtlagentApplicationTests {
 
@@ -54,20 +53,23 @@ class EtlagentApplicationTests {
     @Autowired
     ProductWorkflowAdoptRepo adoptRepo;
 
+    @Autowired
+    ProductRepo productRepo;
+
     @Test
     void contextLoads() {
     }
 
     @Test
-    void ensureInlineDatasource() {
+    void inlineDbConnects() {
         var result = inspRepo.findAll();
-        Assertions.assertEquals(result.size(), 1);
+        Assertions.assertEquals(40, result.size());
     }
 
     @Test
     void ensureLithoDatasource() {
-        var result = adoptRepo.findByWindow();
-        Assertions.assertEquals(result.size(), 1);
+        var result = productRepo.getIds();
+        Assertions.assertEquals(10, result.size());
     }
 
 }

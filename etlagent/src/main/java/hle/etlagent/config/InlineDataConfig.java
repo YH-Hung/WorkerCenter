@@ -18,6 +18,7 @@ public class InlineDataConfig {
         return new DataSourceProperties();
     }
 
+    // Inject credential before call build()
     @Bean
     public DataSource inlineDataSource() {
         return inlineDataSourceProperties().initializeDataSourceBuilder().build();

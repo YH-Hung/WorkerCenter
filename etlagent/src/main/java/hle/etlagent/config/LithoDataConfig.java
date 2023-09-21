@@ -18,6 +18,7 @@ public class LithoDataConfig {
         return new DataSourceProperties();
     }
 
+    // Inject credential before call build()
     @Bean
     public DataSource lithoDataSource() {
         return lithoDataSourceProperties().initializeDataSourceBuilder().build();
