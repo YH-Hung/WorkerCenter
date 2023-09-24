@@ -14,6 +14,8 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalDateTime;
 
@@ -22,28 +24,19 @@ import static org.assertj.core.api.Assertions.*;
 
 @SuppressWarnings("resource")
 @SpringBootTest
+@Testcontainers // @Testcontainers + @Container = start before all + stop after all
 class EtlagentApplicationTests {
 
+    @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
             "postgres:15.4-alpine"
     ).withInitScript("initialize_postgres.sql");
 
+    @Container
     static MariaDBContainer<?> mariadb = new MariaDBContainer<>("mariadb:lts")
             .withInitScript("initialize_mariadb.sql");
 
-    @BeforeAll
-    static void beforeAll() {
-        postgres.start();
-        mariadb.start();
-    }
-
-    @AfterAll
-    static void afterAll() {
-        postgres.stop();
-        mariadb.stop();
-    }
-
-    @DynamicPropertySource
+    @DynamicPropertySource  // non-auto-config datasource is not compatible with Spring boot 3.1 @ServiceConnection
     static void configureProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.inline.url", postgres::getJdbcUrl);
         registry.add("spring.datasource.inline.username", postgres::getUsername);
