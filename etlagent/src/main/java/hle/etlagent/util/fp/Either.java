@@ -1,5 +1,6 @@
 package hle.etlagent.util.fp;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -24,18 +25,20 @@ public class Either<Left, Right> {
         return new Either<>(left, null, EitherChoice.LEFT);
     }
 
-    public static <Left, Right> Either<Left, Right> ofTryCatch(Supplier<Right> supplier, Function<Exception, Left> orElse) {
-        try {
-            return ofRight(supplier.get());
-        } catch (Exception ex) {
-            return ofLeft(orElse.apply(ex));
-        }
-    }
-
     public <KRight> Either<Left, KRight> map(Function<Right, KRight> transformer) {
         return switch (choice) {
             case LEFT -> ofLeft(leftValue);
             case RIGHT -> ofRight(transformer.apply(rightValue));
+        };
+    }
+
+    public Either<Left, Right> tap(Consumer<Right> consumer) {
+        return switch (choice) {
+            case LEFT -> ofLeft(leftValue);
+            case RIGHT -> {
+                consumer.accept(rightValue);
+                yield  ofRight(rightValue);
+            }
         };
     }
 
@@ -51,6 +54,13 @@ public class Either<Left, Right> {
             case LEFT -> leftMapper.apply(leftValue);
             case RIGHT -> rightMapper.apply(rightValue);
         };
+    }
+
+    public void matchConsume(Consumer<Left> leftConsumer, Consumer<Right> rightConsumer) {
+        switch (choice) {
+            case LEFT -> leftConsumer.accept(leftValue);
+            case RIGHT -> rightConsumer.accept(rightValue);
+        }
     }
 
     public boolean isLeft() {
