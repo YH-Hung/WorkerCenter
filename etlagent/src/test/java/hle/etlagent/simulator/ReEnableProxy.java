@@ -7,19 +7,18 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.TimerTask;
 
 @Slf4j
-public class RemoveProxyBandwidthCut extends TimerTask {
+public class ReEnableProxy extends TimerTask {
 
     private final Proxy proxy;
 
-    public RemoveProxyBandwidthCut(Proxy proxy) {
+    public ReEnableProxy(Proxy proxy) {
         this.proxy = proxy;
     }
 
     @SneakyThrows
     @Override
     public void run() {
-        log.info("Release network cut");
-        proxy.toxics().get("CUT_CONNECTION_DOWNSTREAM").remove();
-        proxy.toxics().get("CUT_CONNECTION_UPSTREAM").remove();
+        log.debug("Enable proxy again...");
+        proxy.enable();
     }
 }

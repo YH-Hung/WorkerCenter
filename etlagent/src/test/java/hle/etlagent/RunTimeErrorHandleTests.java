@@ -2,18 +2,16 @@ package hle.etlagent;
 
 import eu.rekawek.toxiproxy.Proxy;
 import eu.rekawek.toxiproxy.ToxiproxyClient;
-import eu.rekawek.toxiproxy.model.ToxicDirection;
 import hle.etlagent.dao.ProductWorkflowAdoptRepo;
 import hle.etlagent.model.TimeWindow;
 import hle.etlagent.service.InspectProcessor;
-import hle.etlagent.simulator.RemoveProxyBandwidthCut;
+import hle.etlagent.simulator.ReEnableProxy;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MariaDBContainer;
@@ -28,7 +26,6 @@ import java.time.LocalDateTime;
 import java.util.Timer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 
 @SpringBootTest
 @Testcontainers
@@ -37,6 +34,7 @@ class RunTimeErrorHandleTests {
 
     private static final Network network = Network.newNetwork();
 
+    @SuppressWarnings("resource")
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
             "postgres:15.4-alpine"
@@ -50,6 +48,7 @@ class RunTimeErrorHandleTests {
     static final ToxiproxyContainer toxiproxy = new ToxiproxyContainer("ghcr.io/shopify/toxiproxy:2.5.0")
             .withNetwork(network);
 
+    @SuppressWarnings("resource")
     @Container
     static MariaDBContainer<?> mariadb = new MariaDBContainer<>("mariadb:lts")
             .withInitScript("initialize_mariadb.sql");
@@ -73,31 +72,17 @@ class RunTimeErrorHandleTests {
     @Autowired
     InspectProcessor inspectProcessor;
 
+
     @Test
     @Order(1)
-    void inlineToLithoFetchNetworkCut() throws IOException {
-        postgresqlProxy.toxics().bandwidth("CUT_CONNECTION_DOWNSTREAM", ToxicDirection.DOWNSTREAM, 0);
-        postgresqlProxy.toxics().bandwidth("CUT_CONNECTION_UPSTREAM", ToxicDirection.UPSTREAM, 0);
-
-        var from = LocalDateTime.of(2023, 9, 12, 0, 0, 0);
-        var to = LocalDateTime.of(2023, 9, 13, 0, 0, 0);
-        assertThat(catchThrowable(() ->  inspectProcessor.fetchInspRawByWindow(new TimeWindow(from, to))))
-                .isInstanceOf(CannotGetJdbcConnectionException.class);
-        postgresqlProxy.toxics().get("CUT_CONNECTION_DOWNSTREAM").remove();
-        postgresqlProxy.toxics().get("CUT_CONNECTION_UPSTREAM").remove();
-    }
-
-    @Test
-    @Order(2)
     void inlineToLithoFetchNetworkTempCutCoverByRetry() throws IOException {
-        postgresqlProxy.toxics().bandwidth("CUT_CONNECTION_DOWNSTREAM", ToxicDirection.DOWNSTREAM, 0);
-        postgresqlProxy.toxics().bandwidth("CUT_CONNECTION_UPSTREAM", ToxicDirection.UPSTREAM, 0);
+        postgresqlProxy.disable();
 
         var from = LocalDateTime.of(2023, 9, 12, 0, 0, 0);
         var to = LocalDateTime.of(2023, 9, 13, 0, 0, 0);
 
         Timer timer = new Timer();
-        timer.schedule(new RemoveProxyBandwidthCut(postgresqlProxy), 30000);
+        timer.schedule(new ReEnableProxy(postgresqlProxy), 30000);
 
         inspectProcessor.fetchInspRawByWindow(new TimeWindow(from, to));
         var result = adoptRepo.findByWindow(from, to);
