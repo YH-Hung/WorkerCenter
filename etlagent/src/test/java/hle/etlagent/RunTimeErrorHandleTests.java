@@ -27,8 +27,8 @@ import java.util.Timer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
 @Testcontainers
+@SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class RunTimeErrorHandleTests {
 

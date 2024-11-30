@@ -5,8 +5,6 @@ import hle.etlagent.dao.ProductRepo;
 import hle.etlagent.dao.ProductWorkflowAdoptRepo;
 import hle.etlagent.model.TimeWindow;
 import hle.etlagent.service.InspectProcessor;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,10 +19,9 @@ import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.*;
 
-
 @SuppressWarnings("resource")
-@SpringBootTest
 @Testcontainers // @Testcontainers + @Container = start before all + stop after all
+@SpringBootTest
 class EtlagentApplicationTests {
 
     @Container
@@ -85,3 +82,4 @@ class EtlagentApplicationTests {
     }
 
 }
+
